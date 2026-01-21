@@ -1,0 +1,18 @@
+services:
+  node-probe:
+    build: .
+    container_name: node-probe
+    restart: always
+    env_file:
+      - ./agent.env
+    environment:
+      PROC_ROOT: /host/proc
+    volumes:
+      - ./agent.env:/etc/node-probe/agent.env:ro
+      - node-probe-state:/var/lib/node-probe
+      - /proc:/host/proc:ro
+    network_mode: host
+    pid: host
+
+volumes:
+  node-probe-state:
