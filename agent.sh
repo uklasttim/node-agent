@@ -139,6 +139,23 @@ read_uptime() {
   awk '{print int($1)}' "${PROC_ROOT}/uptime"
 }
 
+read_cpu_model() {
+  awk -F: '/model name/ {print $2; exit}' "${PROC_ROOT}/cpuinfo" | xargs
+}
+
+read_os_release() {
+  if [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+    echo "${PRETTY_NAME:-unknown}"
+  else
+    echo "unknown"
+  fi
+}
+
+read_kernel_version() {
+  uname -r
+}
+
 load_state() {
   if [[ -f "$state_file" ]]; then
     local rx_prev tx_prev idle_prev total_prev rx_accum tx_accum
@@ -228,6 +245,15 @@ post_report() {
   local uptime_seconds
   uptime_seconds="$(read_uptime)"
 
+  local cpu_model
+  cpu_model="$(read_cpu_model)"
+
+  local os_release
+  os_release="$(read_os_release)"
+
+  local kernel_version
+  kernel_version="$(read_kernel_version)"
+
   save_state "$rx_now" "$tx_now" "$idle_now" "$total_now" "$rx_accum" "$tx_accum"
 
   local rx_total_persistent=$((rx_accum + rx_now))
@@ -263,6 +289,11 @@ post_report() {
     "one": ${load_one},
     "five": ${load_five},
     "fifteen": ${load_fifteen}
+  },
+  "system": {
+    "cpu_model": "${cpu_model}",
+    "os": "${os_release}",
+    "kernel": "${kernel_version}"
   },
   "disk": {
     "total_kb": ${disk_total},

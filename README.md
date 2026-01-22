@@ -78,6 +78,7 @@ sudo systemctl daemon-reload
 - 负载：`/proc/loadavg` 的 1/5/15
 - 运行时间：`/proc/uptime`
 - 磁盘：`df -k /` 的根分区，含 inode 信息
+- 系统信息：CPU 型号、系统版本、内核版本
 
 ## 状态查看
 
